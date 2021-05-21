@@ -217,6 +217,39 @@
                                     </div>
                                 </div>
                             </div>
+                            <div  id="type-check-5" class="form-group col-sm-12">
+                                <label for="card-holder" class="form-label-header">6.Các sản phẩm của HTAuto có đáp ứng được đầy đủ nhu cầu của anh/chị?</label>
+                                <label id="error-5" class="error hidden">Lựa chọn của bạn?</label>
+                                <div class="row">
+                                    <div class="col-4 text-center">
+                                        <div class="emoji emoji-6 emoji-6-1" onclick="changeLv(6,1)"
+                                             data-type="0">
+                                            <div class="checked-emoji checked-emoji-6 hidden check-emoji-6-1">&#9989;
+                                            </div>
+                                            <img  class="emoji-image" src="/image/emoji/1.png">
+                                        </div>
+                                        <div class="text-emoji">Đầy đủ<i id="number-lv1"></i></div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <div class="emoji emoji-6 emoji-6-2" onclick="changeLv(6,2)"
+                                             data-type="0">
+                                            <div class="checked-emoji checked-emoji-6 hidden check-emoji-6-2">&#9989;
+                                            </div>
+                                            <img  class="emoji-image" src="/image/emoji/2.png">
+                                        </div>
+                                        <div class="text-emoji">Bình thường<i id="number-lv2"></i></div>
+                                    </div>
+                                    <div class="col-4 text-center">
+                                        <div class="emoji emoji-6 emoji-6-3" onclick="changeLv(6,3)"
+                                             data-type="0">
+                                            <div class="checked-emoji checked-emoji-6 hidden check-emoji-6-3">&#9989;
+                                            </div>
+                                            <img  class="emoji-image" src="/image/emoji/3.png">
+                                        </div>
+                                        <div class="text-emoji">Chưa đầy đủ<i id="number-lv3"></i></div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="form-group col-sm-12">
                                 <label for="card-holder" class="form-label-header">Ý kiến đóng góp thêm ( Nếu
                                     có)</label>

@@ -5,9 +5,9 @@ $.ajaxSetup({
 });
 let page =$("#load_page")
 var type = 0;
-let data = ["", "", "", "", ""];
+let data = ["", "", "", "", "",""];
 const option = ["", "Tốt", "Bình Thường", "Kém"];
-const property = ["attitude", "knowledge", "time", "cost", "quality"];
+const property = ["attitude", "knowledge", "time", "cost", "quality", "completeness"];
 
 function changeLv(type, lv) {
     data[type - 1] = option[lv];
