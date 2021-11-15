@@ -21,3 +21,6 @@ use Illuminate\Support\Facades\Route;
 //     Route::get('product/table', 'DataBaseApi\DataTableController@product')->name('product.api.data');
 
 // });
+Route::group(['prefix' => 'v1'], function() {
+    Route::get('insurance/table', 'DataBaseApi\DataTableController@insurance')->name('insurance.api.data');
+});

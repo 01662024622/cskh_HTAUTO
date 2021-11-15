@@ -3,11 +3,10 @@ $.ajaxSetup({
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
-let page =$("#load_page")
 var type = 0;
-let data = ["", "", "", "", "",""];
+var data = ["", "", "", "", ""];
 const option = ["", "Tốt", "Bình Thường", "Kém"];
-const property = ["attitude", "knowledge", "time", "cost", "quality", "completeness"];
+const property = ["attitude", "knowledge", "time", "cost", "quality"];
 
 function changeLv(type, lv) {
     data[type - 1] = option[lv];
@@ -32,8 +31,6 @@ $("#add-form").submit(function (e) {
         }
         formData.append(property[i],data[i]);
     }
-    page.show()
-    $('#submit-button').prop('disabled', true);
     $.ajax({
         url: "/HT02",
         type: "POST",
@@ -48,8 +45,6 @@ $("#add-form").submit(function (e) {
             toastr.error(thrownError);
         },
     });
-    page.hide()
-    $('#submit-button').prop('disabled', false);
 })
 
 $('input[type="radio"]').on('change', function (e) {

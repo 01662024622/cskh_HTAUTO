@@ -10,7 +10,7 @@
 //         }
 //     }, 0);
 // });
-let page = $('#load_page')
+
 $().ready(function() {
     $("#add-form").submit(function(e) {
         e.preventDefault();
@@ -37,13 +37,7 @@ $().ready(function() {
             province: {
                 required: true,
             },
-            year: {
-                required: true,
-            },
-            month: {
-                required: true,
-            },
-            day: {
+            birthday: {
                 required: true,
             },
             city: {
@@ -72,13 +66,7 @@ $().ready(function() {
             province: {
                 required: 'Câu trả lời của bạn không hợp lệ?',
             },
-            year: {
-                required: 'Câu trả lời của bạn không hợp lệ?',
-            },
-            month: {
-                required: 'Câu trả lời của bạn không hợp lệ?',
-            },
-            day: {
+            birthday: {
                 required: 'Câu trả lời của bạn không hợp lệ?',
             },
             city: {
@@ -86,17 +74,18 @@ $().ready(function() {
             }
         },
         submitHandler: function(form) {
-            page.show();
-            $('#submit-button').prop('disabled', true);
             console.log(form)
             form.submit();
-            page.hide()
-            $('#submit-button').prop('disabled', false);
         }
     });
 });
-var yearOption='<option disabled selected value> -- Chọn năm -- </option>';
-for (let i=1920;i<2005;i++){
-    yearOption=yearOption+'<option>' +i+'</option>';
-}
-$('#year').html(yearOption);
+// $(function () {
+// $("#datepicker").datepicker({
+//     autoclose: true,
+//     todayHighlight: true,
+//     format: "dd/mm/yyyy",
+//     startDate: "01/01/1920",
+//     endDate: "01/01/2010",
+//     language:'vi'
+// });
+// });

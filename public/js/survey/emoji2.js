@@ -3,10 +3,8 @@ $.ajaxSetup({
         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
     }
 });
-
-let page = $('#load_page')
-let type = 0;
-let data = ["", "", "", "", ""];
+var type = 0;
+var data = ["", "", "", "", ""];
 const option = ["", "Tốt", "Bình Thường", "Kém"];
 const property = ["attitude", "knowledge", "time", "cost", "quality"];
 
@@ -49,8 +47,6 @@ $("#add-form").submit(function (e) {
     formData.append('name',name);
     formData.append('phone',phone);
     formData.append('email',$('#email').val());
-    page.show()
-    $('#submit-button').prop('disabled', true);
     $.ajax({
         url: "/HT02",
         type: "POST",
@@ -61,13 +57,10 @@ $("#add-form").submit(function (e) {
         contentType: false,
         success: function (response) {
             window.location.replace("http://htauto.com.vn");
-            page.hide()
         }, error: function (xhr, ajaxOptions, thrownError) {
             toastr.error(thrownError);
-            page.hide()
         },
     });
-    $('#submit-button').prop('disabled', false);
 })
 
 $('input[type="radio"]').on('change', function (e) {

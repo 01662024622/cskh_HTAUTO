@@ -19,3 +19,13 @@ Route::resource('/HT01', 'HT50\InforCustomerSurveyController');
 Route::resource('/sms', 'HT50\SMSController');
 
 Route::resource('/HT02', 'HT10\CustomerFeedbackController');
+Route::resource('/HT11', 'HT11\InsuranceController');
+
+
+Route::resource('/insurance', 'HT11\InsuranceManagerController');
+Route::get('/insurance-end-point', 'HT11\InsuranceController@noInsurance');
+
+Route::resource('/cheditor', 'CheditorController');
+Route::post('cheditor/upload', 'HT11\InsuranceManagerController@upload')->name('ckeditor.upload');
+
+Route::get('my-laravel-endpoint','HT11\InsuranceManagerController@upload');
