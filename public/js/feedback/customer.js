@@ -58,14 +58,16 @@ function filter(word) {
 
 //If the user clicks on any item, set the title of the button as the text of the item
 $('#menuItems').on('click', '.dropdown-item', function () {
+    var page_load = $('#load_page')
     $('#dropdown_coins').text($(this)[0].value)
     $('#dropdown_coins').attr("data", $($(this)[0]).attr("data"))
     $("#dropdown_coins").dropdown('toggle');
-    // page.show()
+    page_load.show()
     $.ajax({
         type: "GET",
         url: "/HT11/" + $($(this)[0]).attr("data"),
         success: function (json) {
+            page_load.hide()
             console.log(json)
             // page.hide()
 
@@ -75,7 +77,7 @@ $('#menuItems').on('click', '.dropdown-item', function () {
             let content = '<img class="img-fluid" src="/image/Chính sách bảo hảnh.jpg">'
             if (json.type === 0) {
                 let footer = '<br><br><label for="card-holder" class="form-label-header">Anh chị chắc chắn sản phẩm thuộc chính sách được bảo hành?</label>' +
-                    '<div class="form-check"><a target="_blank" href="https://docs.google.com/forms/d/e/1FAIpQLSdPCppdaMrzM6z-92P-B5WwJThK1JM2riCina19TOgHjdDvfg/viewform?usp=sf_link" class="btn btn-primary" role="button">Có</a>&nbsp;&nbsp;&nbsp;' +
+                    '<div class="form-check"><a target="_blank" href="https://forms.gle/4GwvPeP1XjEJuwYu7" class="btn btn-primary" role="button">Có</a>&nbsp;&nbsp;&nbsp;' +
                     '<a href="/insurance-end-point" class="btn btn-danger" role="button">Không</a></div>'
                 $('#content-insurance').html(header + content + footer);
             } else {
@@ -87,6 +89,7 @@ $('#menuItems').on('click', '.dropdown-item', function () {
         },
         error: function (xhr, ajaxOptions, thrownError) {
             // page.hide()
+            page_load.hide()
             toastr.error(thrownError);
         }
     });

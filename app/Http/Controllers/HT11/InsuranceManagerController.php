@@ -12,6 +12,7 @@ class InsuranceManagerController extends ResouceController
 {
     function __construct(InsuranceService $service)
     {
+        $this->middleware('auth');
         parent::__construct($service, array('active' => 'insurance', 'group' => 'feedback'), $blade = '.indexManager');
     }
 

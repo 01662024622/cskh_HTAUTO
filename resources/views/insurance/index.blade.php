@@ -20,6 +20,7 @@
 
     <link rel="stylesheet" type="text/css" href="/css/review360/intergration.css">
     <link rel="stylesheet" type="text/css" href="/css/survey/index.css">
+    <link rel="stylesheet" type="text/css" href="/css/main/errors.css">
 </head>
 <body>
 <form action="/customer/feedback/report" method="post" id="add-form">
@@ -77,7 +78,9 @@
     </main>
 </form>
 
-
+<div id="load_page">
+    <div class="loader"></div>
+</div>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

@@ -14,6 +14,8 @@ use \Illuminate\Support\Facades\Auth;
 |
 */
 
+Auth::routes();
+
 Route::resource('/HT01', 'HT50\InforCustomerSurveyController');
 
 Route::resource('/sms', 'HT50\SMSController');

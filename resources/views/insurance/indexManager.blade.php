@@ -42,23 +42,20 @@
                                    placeholder="Nhập Tên Nhóm...">
                         </div>
                         <div class="form-group">
+                            <input type="checkbox" id="type" name="type" value="1">
+                            <label for="name">Đã có chính sách riêng</label>
+                        </div>
+                        <div class="form-group insurance-content">
                             <label for="name">Link</label>
                             <input type="text" class="form-control" id="link" name="link"
                                    placeholder="Nhập Mã Phòng Ban...">
                         </div>
-
-                        <div class="form-group">
-                            <input type="checkbox" id="type" name="type" value="1">
-                            <label for="name">Đã có chính sách riêng</label>
-                        </div>
-                        <div class="form-group" id="insurance-content">
+                        <div class="form-group insurance-content">
                             <label for="name">Quy định bảo hành</label>
                             <textarea name="content-ckeditor" id="content-ckeditor"></textarea>
                         </div>
                         <input type="hidden" name="id" id="eid">
-
                     </div>
-
                     <!-- Modal footer -->
                     <div class="modal-footer">
                         <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>

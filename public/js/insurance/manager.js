@@ -128,11 +128,11 @@ function getInfo(id) {
             $('#link').val(response.link);
             if (response.type === 0) {
                 $('#type').prop('checked', false);
-                $("#insurance-content").hide()
+                $(".insurance-content").hide()
             }else
             {
                 $('#type').prop('checked', true);
-                $("#insurance-content").show()
+                $(".insurance-content").show()
             }
             CKEDITOR.instances['content-ckeditor'].setData(response.content);
             $('#eid').val(response.id);
@@ -185,11 +185,12 @@ function alDelete(id) {
 function clearForm() {
     $('#add-form')[0].reset();
     $('#eid').val('');
+    $(".insurance-content").hide()
 }
 
 
 $("#type").change(function () {
     if (this.checked) {
-        $("#insurance-content").show()
-    } else $("#insurance-content").hide()
+        $(".insurance-content").show()
+    } else $(".insurance-content").hide()
 });
