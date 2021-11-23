@@ -78,11 +78,12 @@ $("#add-form").submit(function (e) {
         var formData = new FormData(form);
         if ($('#eid').val() == '') {
             formData.delete('id');
-            console.log(123)
+            console.log(form)
         }
         formData.set('content-ckeditor',
             CKEDITOR.instances['content-ckeditor'].getData())
 
+        if ($('#myCheckbox').attr('checked'))
         $.ajax({
             url: form.action,
             type: form.method,
