@@ -29,12 +29,12 @@
 
         <div class="container-form">
             <div class="card-details">
+                <img src="/image/banner-insurance.jpg" class="img img-fluid">
                 <p style="font-size: 1rem">
-                    <i>HTAUTO xin kính chào quý khách</i>
-                    <br><br>Nhằm cải thiện và nâng cao chất lượng dịch vụ, HTAUTO mong muốn mang đến cho khách hàng dịch
-                    vụ bảo hành thuận tiện nhất.
-                    <br><br>Kính mong quý khách phản hồi thông tin bảo hành dưới đây.
-                    <br><br><b>Xin trân trọng cảm ơn!</b>
+{{--                    <i>HTAUTO xin kính chào quý khách</i>--}}
+                    <br>HT xin lỗi vì sự cố khiến cho sản phẩm của Quý khách mua tại HT bị hỏng và phải gửi lại bảo hành.
+                    <br><br>Với mong muốn mang đến cho khách hàng dịch vụ bảo hành thuận tiện và nhanh chóng nhất, Quý khách vui lòng đọc kỹ hướng dẫn điều kiện bảo hành và điền thông tin vào form dưới đây
+                    <br><br><b>HT xin trân trọng cảm ơn!</b>
                     <br>
                 </p>
             </div>
