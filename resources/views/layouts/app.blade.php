@@ -291,8 +291,8 @@
 </div>
 <!-- Bootstrap core JavaScript-->
 <script src="{{asset('/js/vendor/jquery.min.js')}}"></script>
-<script src="{{asset('/js/vendor/popper.min.js')}}"
-        integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"
+        integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"
         crossorigin="anonymous"></script>
 <script src="{{asset('/js/vendor/bootstrap-datepicker.min.js')}}"></script>
 <script src="{{asset('/vendor/bootstrap/js/bootstrap.bundle.min.js')}}"></script>

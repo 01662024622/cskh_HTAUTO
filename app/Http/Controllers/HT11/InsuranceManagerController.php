@@ -26,7 +26,7 @@ class InsuranceManagerController extends ResouceController
 
             $request->file('upload')->move(public_path('images'), $fileName);
             $CKEditorFuncNum = $request->input('CKEditorFuncNum');
-            $url = asset('public/images/' . $fileName);
+            $url = asset('images/' . $fileName);
             $msg = 'succes';
             $response = "<script>window.parent.CKEDITOR.tools.callFunction($CKEditorFuncNum,'$url','$msg')</script>";
             @header('Content-type: text/html; chasert=utf8');
