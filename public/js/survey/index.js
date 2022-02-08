@@ -79,13 +79,3 @@ $().ready(function() {
         }
     });
 });
-// $(function () {
-// $("#datepicker").datepicker({
-//     autoclose: true,
-//     todayHighlight: true,
-//     format: "dd/mm/yyyy",
-//     startDate: "01/01/1920",
-//     endDate: "01/01/2010",
-//     language:'vi'
-// });
-// });
