@@ -85,8 +85,11 @@
             <div class="container-form">
                 <div class="card-details">
                     <div class="row">
-                        <h3>Mô tả hỏng</h3>
+                        <h2>Mô tả hỏng</h2>
                         <hr>
+                        <br>
+                        <br>
+                        <br>
                         @foreach ($data['data'] as $value)
                             <div class="form-group col-sm-12">
                                 <label for="card-holder" class="form-label-header">{{$value['ask']}} <span
