@@ -30,54 +30,9 @@ class InsuranceController extends Controller
 
     public function edit($id)
     {
-//        $data= Insurance::where('id',$id)->where('status',0)->first();
-        $data = '{"data":[{
-                "ask":"Đã từng thay càng?",
-                "number":1,
-                "answer":["Đã thay","Chưa thay"]
-            },{
-                "ask":"Vị trí của càng?",
-                "number":2,
-                "answer":["Ảnh","Phải"]
-            },{
-                "ask":"Mức độ tiếng kêu?",
-                "number":3,
-                "answer":["To","Vừa","Nhỏ"]
-            },{
-                "ask":"Tiếng kêu?",
-                "number":4,
-                "answer":["Lục cục","Lẹt kẹt"]
-            },{
-                "ask":"Xe có bị nhao lái không?",
-                "number":5,
-                "answer":["Có","Không"]
-            },{
-                "ask":"Tình trạng càng (chung)?",
-                "number":6,
-                "answer":["Cong","Biến dạng","Lỏng cao su ép vào càng","Lỏng rotuyn ép vào càng"]
-            },{
-                "ask":"Tình trạng rôtuyn càng?",
-                "number":7,
-                "answer":["Cong vênh","Ren còn tốt","Ren hỏng"]
-            },{
-                "ask":"Lốp mòn không đều?",
-                "number":8,
-                "answer":["Đều","Không"]
-            },{
-                "ask":"Tình trạng cao su rôtuyn càng?",
-                "number":9,
-                "answer":["Rách","Không rách"]
-            },{
-                "ask":"Tình trạng cao su càng?",
-                "number":10,
-                "answer":["Rách","Không rách"]
-            },{
-                "ask":"Vô lăng bị rung lắc?",
-                "number":11,
-                "answer":["Rách","Không rách","Bị rung lắc","Không bị rung lắc"]
-            }
-            ]}';
-        $data = json_decode($data,true);
+        $data= Insurance::where('id',$id)->where('status',0)->first();
+//        $data = '{"data":[{"ask":"Đã từng thay thước lái chưa?","number":0,"answer":["Đã thay","Chưa thay"]},{"ask":"Kiểm tra ko có dấu hiệu va chạm a/h chung tới toàn bộ xe?","number":1,"answer":["Bình thường","Không"]},{"ask":"Kiểm tra gầm xe ko có dấu hiệu va chạm a/h tới hệ thống lái?","number":2,"answer":["Bình thường","Không"]},{"ask":"Kiểm tra trục các đăng có rơ lỏng, han gỉ hay bó kẹt?","number":3,"answer":["Có","Không"]},{"ask":"Kiểm tra rô tuyn lái ngoài có bị rơ, gợn?","number":4,"answer":["Có","Không"]},{"ask":"Có rung động hay bất kì gì bất thường không?","number":5,"answer":["Có","Không"]},{"ask":"Có bị nặng lái không?","number":6,"answer":["Có","Không"]},{"ask":"Mức độ tiếng kêu?","number":7,"answer":["Liên tục","Không liên tục"]},{"ask":"Tiếng kêu lục cục hoặc tiếng kêu lạ không?","number":8,"answer":["Có","Không"]},{"ask":"Tình trạng chảy dầu?","number":9,"answer":["Có","Không"]},{"ask":"Kiểm tra cao su che bụi thước lái có bị rách ko?","number":10,"answer":["Có","Không"]},{"ask":"Kiểm tra dầu trợ lực xem có bị mạt bẩn, biến chất?","number":11,"answer":["Có","Không"]},{"ask":"Bơm trợ lực hoạt động bình thường không?","number":12,"answer":["Có","Không"]},{"ask":"Kiểu lốp?","number":13,"answer":["Nguyên bản","Đã thay"]}]}';
+        $data = json_decode($data->form,true);
         return view('insurance.form')->with('data', $data)->with('type',$id);
 
     }
