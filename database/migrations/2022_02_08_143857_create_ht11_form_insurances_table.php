@@ -23,6 +23,7 @@ class CreateHt11FormInsurancesTable extends Migration
             $table->string('amount');
             $table->string('insurance_date');
             $table->integer('type');
+            $table->string('0')->nullable();
             $table->string('1')->nullable();
             $table->string('2')->nullable();
             $table->string('3')->nullable();

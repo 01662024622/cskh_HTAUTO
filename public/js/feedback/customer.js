@@ -82,7 +82,7 @@ $('#menuItems').on('click', '.dropdown-item', function () {
                 $('#content-insurance').html(header + content + footer);
             } else {
                 let footer = '<br><br><label for="card-holder" class="form-label-header">Anh chị chắc chắn sản phẩm thuộc chính sách được bảo hành?</label>' +
-                    '<div class="form-check"><a target="_blank" href="' + json.link + '" class="btn btn-primary" role="button">Có</a>&nbsp;&nbsp;&nbsp;' +
+                    '<div class="form-check"><a target="_blank" href="/HT11/' + json.id + '/edit" class="btn btn-primary" role="button">Có</a>&nbsp;&nbsp;&nbsp;' +
                     '<a href="/insurance-end-point" class="btn btn-danger" role="button">Không</a></div>'
                 $('#content-insurance').html(header + json.content + footer)
             }

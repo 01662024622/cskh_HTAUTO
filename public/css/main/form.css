@@ -25,3 +25,9 @@
 .payment-form .card-details button {
     padding: 6px 12px;
 }
+.form-check-label:first-letter{
+    text-transform: capitalize
+}
+.form-label-header:first-letter{
+    text-transform: capitalize
+}

@@ -108,8 +108,8 @@
                             <div class="form-group col-sm-12">
                                 <label for="card-holder" class="form-label-header">Ảnh/video</label>
                                 <div class="custom-file">
-                                    <input type="file" class="custom-file-input" name="file">
-                                    <label class="custom-file-label" for="validatedCustomFile">Tải tệp lên</label>
+                                    <input id="file" type="file" class="custom-file-input" name="file">
+                                    <label id="file-name"  class="custom-file-label" for="validatedCustomFile">Tải tệp lên</label>
                                 </div>
                             </div>
                             <input type="hidden" name="type" value="{{$type}}">
