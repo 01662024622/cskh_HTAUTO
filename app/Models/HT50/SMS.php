@@ -6,5 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SMS extends Model
 {
-    //
+    protected $fillable=['code','name','phone'];
+
+    protected $table = "data_kh";
 }

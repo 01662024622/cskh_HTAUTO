@@ -32,6 +32,7 @@
 
                 <div class="products">
                     <h3 class="title">Anh/chị đã hoàn thành form thông tin</h3>
+                    <div class="item">HT Auto gửi anh/chị món quà nhỏ: 01 mã voucher giảm 50,000đ là:<b>{{$voucher}}</b></div>
                     <div class="item">Xin chân thành cảm ơn!</div>
                     <br><br>
                 </div>

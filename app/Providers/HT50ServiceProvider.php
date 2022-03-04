@@ -2,9 +2,11 @@
 
 namespace App\Providers;
 
+use App\Services\HT50\GiftService;
 use App\Services\HT50\InforCustomerSurveyService;
 use App\Services\HT50\SMSService;
 use App\Services\HT50\SpeedSMSApiServerice;
+use App\Services\Impl\HT50\GiftServiceImpl;
 use App\Services\Impl\HT50\InforCustomerSurveyServiceImpl;
 use App\Services\Impl\HT50\SMSServiceImpl;
 use App\Services\Impl\HT50\SpeedSMSApiServericeImpl;
@@ -26,6 +28,11 @@ class HT50ServiceProvider extends ServiceProvider
         $this->app->singleton(
             InforCustomerSurveyService::class,
             InforCustomerSurveyServiceImpl::class
+        );
+
+        $this->app->singleton(
+            GiftService::class,
+            GiftServiceImpl::class
         );
     }
 

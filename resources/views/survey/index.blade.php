@@ -21,10 +21,9 @@
           rel="stylesheet"/>
     <link rel="stylesheet" type="text/css" href="/css/review360/intergration.css">
     <link rel="stylesheet" type="text/css" href="/css/survey/index.css">
-    <link rel="stylesheet" type="text/css" href="{{asset('/css/main/errors.css')}}">
 
 </head>
-<body id="page-top" class="sidebar-toggled">
+<body>
 <form action="/HT01" method="post" id="add-form">
     @csrf
     <main class="page payment-page">
@@ -150,67 +149,9 @@
                         <div class="row">
                             <div class="form-group col-sm-12">
                                 <label for="card-holder" class="form-label-header">Ngày sinh nhật của chủ Gara/Cửa hàng *</label>
-                                <div class="row">
-                                    <div class="col">
-                                        <select class="form-control" id="day" name="day">
-                                            <option disabled selected value> -- Chọn ngày -- </option>
-                                            <option>01</option>
-                                            <option>02</option>
-                                            <option>03</option>
-                                            <option>04</option>
-                                            <option>05</option>
-                                            <option>06</option>
-                                            <option>07</option>
-                                            <option>08</option>
-                                            <option>09</option>
-                                            <option>10</option>
-                                            <option>11</option>
-                                            <option>12</option>
-                                            <option>13</option>
-                                            <option>14</option>
-                                            <option>15</option>
-                                            <option>16</option>
-                                            <option>17</option>
-                                            <option>18</option>
-                                            <option>19</option>
-                                            <option>20</option>
-                                            <option>21</option>
-                                            <option>22</option>
-                                            <option>23</option>
-                                            <option>24</option>
-                                            <option>25</option>
-                                            <option>26</option>
-                                            <option>27</option>
-                                            <option>28</option>
-                                            <option>29</option>
-                                            <option>30</option>
-                                            <option>31</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control" id="month" name="month">
-                                            <option disabled selected value> -- Chọn tháng -- </option>
-                                            <option>01</option>
-                                            <option>02</option>
-                                            <option>03</option>
-                                            <option>04</option>
-                                            <option>05</option>
-                                            <option>06</option>
-                                            <option>07</option>
-                                            <option>08</option>
-                                            <option>09</option>
-                                            <option>10</option>
-                                            <option>11</option>
-                                            <option>12</option>
-                                        </select>
-                                    </div>
-                                    <div class="col">
-                                        <select class="form-control" id="year" name="year">
-                                            <option disabled selected value> -- Chọn tháng -- </option>
-
-                                        </select>
-                                    </div>
-                                </div>
+                                <input id="datepicker" name="birthday" class="text-button" type="date"
+                                       placeholder="dd-mm-yyyy" value=""
+                                       min="1900-01-01" max="2020-12-31">
                             </div>
                         </div>
                     </div>
@@ -236,9 +177,6 @@
         </section>
     </main>
 </form>
-<div id="load_page">
-    <div class="loader"></div>
-</div>
 
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -249,6 +187,8 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
+<script src="{{asset('/public/js/vendor/bootstrap-datepicker.min.js')}}"></script>
+
 <!-- Page level custom scripts -->
 <script src="{{asset('/js/jquery.validate.min.js')}}" type="text/javascript"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.18/js/bootstrap-select.min.js"></script>

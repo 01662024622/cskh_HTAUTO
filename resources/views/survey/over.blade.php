@@ -32,7 +32,7 @@
 
                 <div class="products">
                     <h3 class="title">Thông tin đã được gửi đi thành công</h3>
-                    <div class="item">Chào mừng Quý khách đã trở thành khách hàng thân thiết của HTAuto. HTAuto Việt Nam xin tặng một món quà nhỏ welcome Qúy khách đến với hệ thống thành viên thân thiết. Quà tặng sẽ được gửi đến địa chỉ Quý khách đã đăng ký trên form sau 03 ngày làm việc. Trân trọng!</b></div>
+                    <div class="item">HT Auto gửi anh/chị món quà nhỏ: 01 mã voucher giảm 50,000đ là:<b>{{$voucher}}</b></div>
                     <div class="item">Xin chân thành cảm ơn!</div>
                     <br><br>
                 </div>
