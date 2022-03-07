@@ -104,6 +104,12 @@
                             </div>
                         @endforeach
 
+                        <br>
+                        <br>
+                        <div class="form-group col-sm-12">
+                            <label for="card-holder" class="form-label-header">Mô hỏng</label>
+                            <input type="text" class="form-control" id="description" name="description" placeholder="Câu trả lời của bạn...">
+                        </div>
                         <div class="form-group col-sm-12">
                             <div class="form-group col-sm-12">
                                 <label for="card-holder" class="form-label-header">Ảnh/video</label>
