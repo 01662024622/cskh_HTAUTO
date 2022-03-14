@@ -45,7 +45,7 @@ class InforCustomerSurveyController extends ResouceController
         $customer =B20Customer::where('Code',$code)->orWhere ('Code',$code.'.')->first();
         if ($customer){
             $voucher =InforCustomerSurvey::where('code',$code)->first();
-            if($voucher) return view('survey.notOver');
+            if($voucher) return view('survey.notOver',['voucher'=>$customer->Code]);
             return view('survey.index',['code'=>$customer->Code]);
         }
         return view('errors.404');
