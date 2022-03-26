@@ -26,7 +26,7 @@ var dataTable = $('#users-table').DataTable({
         {data: 'DT_RowIndex', name: 'DT_RowIndex'},
         {data: 'code', name: 'code'},
         {data: 'name', name: 'name'},
-        // {data: 'role', name: 'role'},
+        {data: 'role_pt', name: 'role_pt'},
         {data: 'phone', name: 'phone'},
         {data: 'birthday', name: 'birthday'},
         {data: 'level', name: 'level'},
