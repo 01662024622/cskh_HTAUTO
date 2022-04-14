@@ -25,6 +25,8 @@ Route::resource('/HT11', 'HT11\InsuranceController');
 
 
 Route::resource('/insurance', 'HT11\InsuranceManagerController');
+Route::resource('/insuranceReport', 'HT11\InsuranceReportController');
+Route::get('/', 'HT11\InsuranceReportController@index');
 Route::get('/insurance-end-point', 'HT11\InsuranceController@noInsurance');
 
 Route::resource('/cheditor', 'CheditorController');
@@ -45,6 +47,7 @@ Route::group(['prefix' => 'api/status'], function () {
 });
 Route::group(['prefix' => 'api/v1'], function () {
     Route::get('posts/table', 'DataApi\PostApiController@anyData')->name('posts.api.data');
+    Route::get('insurance/report/table', 'DataApi\InsuranceController@anyData')->name('report.insurance.api.data');
     Route::get('targets/table', 'DataApi\TargetApiController@anyData')->name('targets.api.data');
     Route::get('user/targets/table', 'DataApi\TargetApiController@anyDataUser')->name('targets.api.data');
     Route::get('targets/kpis/table', 'DataApi\TargetApiController@anyDataResult')->name('targets.api.data');

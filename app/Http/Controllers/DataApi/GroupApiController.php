@@ -36,7 +36,6 @@ class GroupApiController extends Controller
 			<i class="fa fa-trash" aria-hidden="true"></i></button>
 			';
             })
-            ->addIndexColumn()
             ->setRowId('data-{{$id}}')
             ->rawColumns(['action','users'])
             ->make(true);
