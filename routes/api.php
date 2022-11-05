@@ -22,7 +22,6 @@ use Illuminate\Support\Facades\Route;
 
 // });
 Route::group(['prefix' => 'v1'], function() {
-    Route::get('insurance/table', 'DataBaseApi\DataTableController@insurance')->name('insurance.api.data');
 
-    Route::post('webhook/nhanh/erp', 'DataBaseApi\Webhook@inventory19021996')->name('webhook.api.nhanh');
+    Route::post('webhook/nhanh/erp', 'WebhookController@inventory19021996')->name('webhook.api.nhanh');
 });

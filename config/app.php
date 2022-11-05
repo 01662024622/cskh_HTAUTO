@@ -172,28 +172,15 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
 
         App\Providers\GoogleDriveServiceProvider::class,
         App\Providers\RepositoryServiceProvider::class,
         App\Providers\AdminRepositoryServiceProvider::class,
-        App\Providers\HT00ServiceProvider::class,
-        App\Providers\HT10ServiceProvider::class,
         App\Providers\HT20ServiceProvider::class,
-        App\Providers\HT00RepositoryProvider::class,
-        App\Providers\HT10RepositoryProvider::class,
         App\Providers\HT20RepositoryProvider::class,
         App\Providers\HT20RepositoryProvider::class,
-        App\Providers\HT30ServiceProvider::class,
-        App\Providers\HT30RepositoryProvider::class,
-        App\Providers\HT40RepositoryProvider::class,
-        App\Providers\HT40ServiceProvider::class,
-        App\Providers\HT50RepositoryProvider::class,
-        App\Providers\HT50ServiceProvider::class,
-        App\Providers\HT11ServiceProvider::class,
-        App\Providers\HT11RepositorProvider::class
 
 
     ],
