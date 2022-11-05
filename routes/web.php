@@ -20,9 +20,5 @@ Auth::routes();
 Route::get('/', function (){ return view("test");});
 Route::get('/insurance-end-point', 'HT11\InsuranceController@noInsurance');
 
-Route::resource('/cheditor', 'CheditorController');
-Route::post('cheditor/upload', 'HT11\InsuranceManagerController@upload')->name('ckeditor.upload');
-
-Route::get('my-laravel-endpoint','HT11\InsuranceManagerController@upload');
 
 

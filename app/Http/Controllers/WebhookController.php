@@ -9,6 +9,6 @@ class WebhookController extends Controller
     public function inventory19021996(Request $request)
     {
         $webhook = Webhook::create(['data' => json_encode($request->all())]);
-        return $webhook;
+        return response($webhook, 200);
     }
 }
