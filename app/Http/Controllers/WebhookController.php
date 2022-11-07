@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Center;
@@ -34,8 +33,8 @@ class WebhookController extends Controller
             return response($webhook, 200);
         }
         $oldToken = ErpToken::latest()->first();
-        $stocks = Center::where('nhanhId', '>', 0)->get();
-        $stockNhanhs = Center::where('nhanhId', '>', 0)->get()->pluck('nhanhId')->toArray();
+        $stocks = Center::where('nhanhId', '>', 0)->where('active',1)->get();
+        $stockNhanhs = Center::where('nhanhId', '>', 0)->where('active',1)->get()->pluck('nhanhId')->toArray();
         $this->token = $oldToken->token;
         foreach ($nhanh["data"] as $item) {
             $product = Product::where('code', $item['code'])->where('parentId', '>', 0)->first();
