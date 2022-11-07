@@ -23,5 +23,6 @@ use Illuminate\Support\Facades\Route;
 // });
 Route::group(['prefix' => 'v1'], function() {
 
-    Route::post('webhook/nhanh/erp', 'WebhookController@inventory19021996')->name('webhook.api.nhanh');
+    Route::post('webhook/nhanh/erp', 'WebhookController@create')->name('webhook.api.nhanh');
+    Route::get('webhook/nhanh/erp', 'WebhookController@get')->name('webhook.api.nhanh');
 });
