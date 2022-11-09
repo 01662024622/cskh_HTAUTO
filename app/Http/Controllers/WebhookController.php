@@ -77,6 +77,8 @@ class WebhookController extends Controller
                 'total_actual' => $inventoryNhanh['available'],
                 'total_adjustment' => $inventoryNhanh['available']-$stockErp->total_quantity);
             $this->upDateInventory($stockMap,$product);
+            $check=true;
+            break;
         }
         if($check) return;
         if ($inventoryNhanh['available']==0) return;
