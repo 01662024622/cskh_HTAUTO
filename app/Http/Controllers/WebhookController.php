@@ -6,8 +6,10 @@ use App\ErpToken;
 use App\Log;
 use App\Product;
 use App\Webhook;
+use CURLFile;
 use Doctrine\DBAL\Driver\Exception;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Unirest\Request as Api;
 use Unirest\Request\Body;
 
@@ -19,23 +21,149 @@ class WebhookController extends Controller
 
     public function get(Request $request)
     {
-        $webhook = Webhook::create(['data' => json_encode($request->all())]);
-        return response($webhook, 200);
+        return response("true", 200);
+        $oldToken = ErpToken::latest()->first();
+        $this->token = str_replace("\"", "", $oldToken->token);
+        $nhanh = $request->only(["url"]);
+        $info = pathinfo($nhanh["url"]);
+        $contents = file_get_contents($nhanh["url"]);
+        $file = 'public/'.$info['basename'];
+        file_put_contents($file, $contents);
+        new UploadedFile($file, $contents);
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => 'https://api.lep.vn/v1/images/upload-single?group=products',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => false,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_POSTFIELDS => array('file'=> new CURLFILE($file)),
+            CURLOPT_HTTPHEADER => array(
+                'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDk0MjkyLCJwaG9uZSI6ImFkbWluIiwiZW1haWwiOm51bGwsIm5hbWUiOiJBZG1pbiIsImF2YXRhciI6bnVsbCwic2VydmljZSI6InN0YWZmIiwiZXhwIjoxNjY5MDUwODk0LCJpYXQiOjE2NjgxODY4OTQsImF1ZCI6IndlYiIsImlzcyI6ImF1dGguYjJjLnZuL3VzZXIvd2ViIn0.Z-VqfS1MeLtb3fkFzSQOitWNTb-GePicQoF6qF4r0Hsp11Yu_OeuU7EGPZF1RFxMTjuG7CySSu07EvDTqj7BDsoznrE-Lb6G_PqnS1RZM5CNLSK2vqoYN7_5o5vlyEJ4EHqhbNGd8WALI6t4_XBptwG7oU_oTv48kbeY2f21wea3DIkcHg2mqe25TJr_U0bB3XPuPd99nXAY6xFDrk-99hset1rf2Fju2E3U41TMYXsD2xwgbNlBbtVB0YJXTKqhSQWrGhCh-weSfl0ACO-hAVeoFEFkwdKY_ny1KcPIFxv5c_zCkl0qGYCk39emoexsWERdKoaTGPRcss0Sy6bWEQ'
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        return $response;
+
+//        fclose($fp);
+//        return null;
+//        $body = Body::Multipart(array("file"=>Body::file($file)));
+//        return Api::post("https://api.lep.vn/v1/images/upload-single?group=products",$headers,$body);
+//        $webhook = Webhook::create(['data' => json_encode($request->all())]);
+//        return response($webhook, 200);
     }
+
 
     public function create(Request $request)
     {
         $nhanh = $request->only(["event", "webhooksVerifyToken", "data"]);
         if ($nhanh["webhooksVerifyToken"] != "Thangui0011@@1996") return response('error', 404);
-
+        $oldToken = ErpToken::latest()->first();
+        $this->token = $oldToken->token;
+        if ($nhanh["event"] == "productAdd") {
+            return $this->procedureProduct($nhanh);
+        }
         if ($nhanh["event"] != "inventoryChange") {
             $webhook = Webhook::create(['data' => json_encode($nhanh)]);
             return response($webhook, 200);
         }
-        $oldToken = ErpToken::latest()->first();
+
+        return $this->procedureInventory($nhanh);
+    }
+    private function procedureProduct($nhanh){
+
+        if($nhanh["data"]["parentId"]!= null)
+            return response('true', 200);
+        $product = Product::create(["code"=>$nhanh["data"]["code"],"name"=>$nhanh["data"]["name"]]);
+        $product->slug=$product->code;
+        $product->sku=$product->code;
+        $product->type="item";
+        $product->variations=[];
+        $product->categories=[];
+        $product->units=[];
+        $product->parts=[];
+        $product->unit=null;
+        $product->price=$nhanh["data"]["price"];
+        $product->normal_price=$nhanh["data"]["price"];
+        $product->original_price=0;
+
+
+        $res = $this->getSubProducts($nhanh["data"]["productId"]);
+        if (!property_exists($res, 'data')) {
+            $product->products=[];
+            $resProduct = $this->createProduct($product);
+            if (!property_exists($resProduct, 'data')) return response("true", 200);
+            $update = Product::find($product->id);
+            $update->pId=$resProduct->data->id;
+            $update->save();
+            return response("true", 200);
+        }
+        $subProducts=[];
+        $index=0;
+        foreach ($res->data->products as $value) {
+
+            $sub =array(
+                "indexes"=>[$index],
+                "options"=> ["\"".trim(str_replace("-","",str_replace($product->code,"",$value->code)))."\""],
+                "option_name"=> trim(str_replace("-","",str_replace($product->code,"",$value->code))),
+                "slug"=>$value->code,
+                "sku"=>$value->code,
+                "name"=>$value->name,
+                "type"=>"item",
+                "variations"=>[],
+                "categories"=>[],
+                "units"=>[],
+                "parts"=>[],
+                "unit"=>null,
+                "price"=>$value->price==null?0:$value->price,
+                "normal_price"=>$value->price==null?0:$value->price,
+                "original_price"=>0,
+
+            );
+            $subProducts[] = $sub;
+            $index++;
+        }
+        $product->products = $subProducts;
+        $resProduct = $this->createProduct($product);
+
+        if (!property_exists($resProduct, 'data')) {
+            $tok = $this->login();
+            if($tok=="") return response("true", 200);
+
+            $resProduct = $this->createProduct($product);
+            if (!property_exists($resProduct, 'data')) return response("true", 200);
+        }
+        $update = Product::find($product->id);
+        $update->pId=$resProduct->data->id;
+        $update->save();
+        $resProduct = $this->getListSubOfProduct($update->pId);
+        if (!property_exists($resProduct, 'data')) {
+            $tok = $this->login();
+            if($tok=="") return response("true", 200);
+            $resProduct = $this->getListSubOfProduct($update->pId);
+            if (!property_exists($resProduct, 'data')) return response("true", 200);
+        }
+        foreach ($resProduct->data->products as $value) {
+            foreach ($subProducts as $subP){
+                if (strtolower($subP["sku"]) == strtolower($value->sku)){
+                    Product::create(["code"=>$value->sku,"name"=>$subP["name"],"pId"=>$value->id,"parentId"=>$update->pId]);
+                    break;
+                }
+            }
+        }
+        return response("true", 200);
+    }
+    private function procedureInventory($nhanh){
         $stocks = Center::where('nhanhId', '>', 0)->where('active',1)->get();
         $stockNhanhs = Center::where('nhanhId', '>', 0)->where('active',1)->get()->pluck('nhanhId')->toArray();
-        $this->token = $oldToken->token;
         foreach ($nhanh["data"] as $item) {
             $product = Product::where('code', $item['code'])->where('parentId', '>', 0)->first();
             if ($product == null) {
@@ -120,6 +248,31 @@ class WebhookController extends Controller
         $res = $response->body;
 
     }
+    private function createProduct($data)
+    {
+        $token =str_replace("\"", "", $this->token);
+        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
+        $body = Body::json($data);
+        $response = Api::post('https://api.lep.vn/v1/products', $headers, $body);
+        return $response->body;
+
+    }
+    private function getListSubOfProduct($id)
+    {
+        $token =str_replace("\"", "", $this->token);
+        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
+        $response = Api::get('https://api.lep.vn/v1/products/'.$id, $headers);
+        return $response->body;
+
+    }
+    private function getSubProducts($id)
+    {
+        $headers = array('Content-Type' => 'application/x-www-form-urlencoded');
+        $data = $this->getBodyGetProduct("{\"page\":1,\"parentId\":".$id."}");
+        $response = Api::post('https://open.nhanh.vn/api/product/search', $headers, $data);
+        return $response->body;
+
+    }
 
     private function login(): string
     {
@@ -154,13 +307,9 @@ class WebhookController extends Controller
         return null;
     }
 
-    private function stockFilterErp(array $lts, int $id)
-    {
-        foreach ($lts as $value) {
-            if ($value->id == $id) {
-                return $value;
-            }
-        }
-        return null;
+    private function getBodyGetProduct($data) {
+        return "appId=73008&version=2.0&businessId=16294&accessToken=MbkK0iZX0IwRewzFLAdJ0w1X9RCEwqmFUJsIpl2kZQ1ytElyOjTmHrjBqHwNKo2ysghCOhbBhzPQ65AVT5GBzFqgBADC2WekYD1jsgQoEtmq9IyrvbVRm8TME0uaDWsV5h1eYq6Jx5Zp87lrHgcZrJtRTsXjAo8uteUbkMgdWPWAt2IMTadyet8H2JTi"
+            ."&data=".$data;
     }
+
 }
