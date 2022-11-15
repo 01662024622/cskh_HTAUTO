@@ -22,43 +22,7 @@ class WebhookController extends Controller
     public function get(Request $request)
     {
         return response("true", 200);
-        $oldToken = ErpToken::latest()->first();
-        $this->token = str_replace("\"", "", $oldToken->token);
-        $nhanh = $request->only(["url"]);
-        $info = pathinfo($nhanh["url"]);
-        $contents = file_get_contents($nhanh["url"]);
-        $file = 'public/'.$info['basename'];
-        file_put_contents($file, $contents);
-        new UploadedFile($file, $contents);
 
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://api.lep.vn/v1/images/upload-single?group=products',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => false,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array('file'=> new CURLFILE($file)),
-            CURLOPT_HTTPHEADER => array(
-                'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDk0MjkyLCJwaG9uZSI6ImFkbWluIiwiZW1haWwiOm51bGwsIm5hbWUiOiJBZG1pbiIsImF2YXRhciI6bnVsbCwic2VydmljZSI6InN0YWZmIiwiZXhwIjoxNjY5MDUwODk0LCJpYXQiOjE2NjgxODY4OTQsImF1ZCI6IndlYiIsImlzcyI6ImF1dGguYjJjLnZuL3VzZXIvd2ViIn0.Z-VqfS1MeLtb3fkFzSQOitWNTb-GePicQoF6qF4r0Hsp11Yu_OeuU7EGPZF1RFxMTjuG7CySSu07EvDTqj7BDsoznrE-Lb6G_PqnS1RZM5CNLSK2vqoYN7_5o5vlyEJ4EHqhbNGd8WALI6t4_XBptwG7oU_oTv48kbeY2f21wea3DIkcHg2mqe25TJr_U0bB3XPuPd99nXAY6xFDrk-99hset1rf2Fju2E3U41TMYXsD2xwgbNlBbtVB0YJXTKqhSQWrGhCh-weSfl0ACO-hAVeoFEFkwdKY_ny1KcPIFxv5c_zCkl0qGYCk39emoexsWERdKoaTGPRcss0Sy6bWEQ'
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        return $response;
-
-//        fclose($fp);
-//        return null;
-//        $body = Body::Multipart(array("file"=>Body::file($file)));
-//        return Api::post("https://api.lep.vn/v1/images/upload-single?group=products",$headers,$body);
-//        $webhook = Webhook::create(['data' => json_encode($request->all())]);
-//        return response($webhook, 200);
     }
 
 
@@ -94,6 +58,30 @@ class WebhookController extends Controller
         $product->price=$nhanh["data"]["price"];
         $product->normal_price=$nhanh["data"]["price"];
         $product->original_price=0;
+        if(array_key_exists("image",$nhanh["data"])){
+            $info = pathinfo($nhanh["data"]["image"]);
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => 'https://api.lep.vn/v1/images/upload-single?group=products',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => false,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('file'=> curl_file_create($nhanh["data"]["image"],'image/jpeg',$info['basename'])),
+                CURLOPT_HTTPHEADER => array(
+                    'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDk0MjkyLCJwaG9uZSI6ImFkbWluIiwiZW1haWwiOm51bGwsIm5hbWUiOiJBZG1pbiIsImF2YXRhciI6bnVsbCwic2VydmljZSI6InN0YWZmIiwiZXhwIjoxNjY5MDUwODk0LCJpYXQiOjE2NjgxODY4OTQsImF1ZCI6IndlYiIsImlzcyI6ImF1dGguYjJjLnZuL3VzZXIvd2ViIn0.Z-VqfS1MeLtb3fkFzSQOitWNTb-GePicQoF6qF4r0Hsp11Yu_OeuU7EGPZF1RFxMTjuG7CySSu07EvDTqj7BDsoznrE-Lb6G_PqnS1RZM5CNLSK2vqoYN7_5o5vlyEJ4EHqhbNGd8WALI6t4_XBptwG7oU_oTv48kbeY2f21wea3DIkcHg2mqe25TJr_U0bB3XPuPd99nXAY6xFDrk-99hset1rf2Fju2E3U41TMYXsD2xwgbNlBbtVB0YJXTKqhSQWrGhCh-weSfl0ACO-hAVeoFEFkwdKY_ny1KcPIFxv5c_zCkl0qGYCk39emoexsWERdKoaTGPRcss0Sy6bWEQ'
+                ),
+            ));
+
+            $response = json_decode(curl_exec($curl));
+            if (!property_exists($response, 'url')) return response("true", 200);
+            $product->thumbnail_url =$response->url;
+            curl_close($curl);
+
+        }
 
 
         $res = $this->getSubProducts($nhanh["data"]["productId"]);
