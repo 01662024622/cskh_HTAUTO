@@ -2,14 +2,13 @@
 namespace App\Http\Controllers;
 
 use App\Center;
+use App\Customer;
 use App\ErpToken;
 use App\Log;
 use App\Product;
 use App\Webhook;
-use CURLFile;
 use Doctrine\DBAL\Driver\Exception;
 use Illuminate\Http\Request;
-use Illuminate\Http\UploadedFile;
 use Unirest\Request as Api;
 use Unirest\Request\Body;
 
@@ -35,12 +34,52 @@ class WebhookController extends Controller
         if ($nhanh["event"] == "productAdd") {
             return $this->procedureProduct($nhanh);
         }
+
+        if ($nhanh["event"] == "orderAdd" ||$nhanh["event"] == "orderUpdate") {
+            return $this->procedurePoint();
+        }
         if ($nhanh["event"] != "inventoryChange") {
             $webhook = Webhook::create(['data' => json_encode($nhanh)]);
             return response($webhook, 200);
         }
 
         return $this->procedureInventory($nhanh);
+    }
+    private function procedurePoint(){
+        $res = $this->getCustomersPoint();
+
+            foreach ($res->data->customers as $customer) {
+                $CheckCustomer = Customer::where("phone",preg_replace('/\s+/S', " ", $customer->mobile))->first();
+                if($CheckCustomer){
+                    if($CheckCustomer->coin == (int)$customer->points) continue;
+                    $this->updatePoint($CheckCustomer);
+                    $CheckCustomer->update(["coin"=>(int)$customer->points]);
+                }else{
+                    // thêm mới khách hàng
+                    $newC = new Customer();
+                    $newC->phone = preg_replace('/\s+/S', " ", str_replace("\"","",$customer->mobile));
+                    $newC->name = preg_replace('/\s+/S', " ", str_replace("\"","",$customer->name));
+                    $newC->coin = (int)$customer->points;
+
+                    $getCustomer = $this->getCustomer($newC->phone);
+                    if (property_exists($getCustomer, 'data')){
+                        if(count($getCustomer->data)>0){
+                            $newC->eId=$getCustomer->data[0]->id;
+                            $newC->save();
+                            continue;
+                        }
+                    }
+                    $res = $this->updatePoint($newC);
+                    if (!property_exists($res, 'data')) {
+                        Log::create(["content"=> "create customer false","description"=>$newC->phone."-".$res]);
+                        continue;
+                    }
+                    $newC->eId=$res->data->id;
+                    $newC->save();
+                }
+
+            }
+        return response('true', 200);
     }
     private function procedureProduct($nhanh){
 
@@ -253,6 +292,15 @@ class WebhookController extends Controller
         return $response->body;
 
     }
+
+    private function getCustomersPoint()
+    {
+        $headers = array('Content-Type' => 'application/x-www-form-urlencoded');
+        $data = $this->getBodyGetProduct("{\"page\":1,\"fromLastBoughtDate\":\"" . date("Y-m-d") . "\",\"toLastBoughtDate\":\"" . date("Y-m-d") . "\"}");
+        $response = Api::post('https://open.nhanh.vn/api/customer/search', $headers, $data);
+        return $response->body;
+
+    }
     private function getSubProducts($id)
     {
         $headers = array('Content-Type' => 'application/x-www-form-urlencoded');
@@ -299,5 +347,47 @@ class WebhookController extends Controller
         return "appId=73008&version=2.0&businessId=16294&accessToken=MbkK0iZX0IwRewzFLAdJ0w1X9RCEwqmFUJsIpl2kZQ1ytElyOjTmHrjBqHwNKo2ysghCOhbBhzPQ65AVT5GBzFqgBADC2WekYD1jsgQoEtmq9IyrvbVRm8TME0uaDWsV5h1eYq6Jx5Zp87lrHgcZrJtRTsXjAo8uteUbkMgdWPWAt2IMTadyet8H2JTi"
             ."&data=".$data;
     }
+    private function getBodyGetCustomer($data) {
+        return "appId=73008&version=2.0&businessId=16294&accessToken=MbkK0iZX0IwRewzFLAdJ0w1X9RCEwqmFUJsIpl2kZQ1ytElyOjTmHrjBqHwNKo2ysghCOhbBhzPQ65AVT5GBzFqgBADC2WekYD1jsgQoEtmq9IyrvbVRm8TME0uaDWsV5h1eYq6Jx5Zp87lrHgcZrJtRTsXjAo8uteUbkMgdWPWAt2IMTadyet8H2JTi"
+            ."&data=".$data;
+    }
 
+    private function updatePoint($customer)
+    {
+        $token =str_replace("\"", "", $this->token);
+        $headers = array('Authorization' => 'Bearer ' .$token,'Content-Type' => 'application/json');
+        $data = "{\n" .
+            "  \"type\": \"individual\",\n" .
+            "  \"name\": \"".$customer->name."\",\n" .
+            "  \"phone\": \"".$customer->phone."\",\n" .
+            "  \"group\": {\n" .
+            "    \"id\": 6,\n" .
+            "    \"name\": \"MEMBER\"\n" .
+            "  },\n" .
+            "  \"stores\": [\n" .
+            "\n" .
+            "  ],\n" .
+            "  \"gender\": \"female\",\n" .
+            "  \"country\": \"vn\",\n" .
+            "  \"permissions\": [\n" .
+            "    \"user\"\n" .
+            "  ],\n" .
+            "  \"total_point\": ".$customer->coin.",\n" .
+            "  \"status\": \"active\"\n" .
+            "}";
+        if(empty($customer->eId)){
+            $response = Api::post('https://api.lep.vn/v1/users', $headers, $data);
+        }else{
+            $response = Api::put('https://api.lep.vn/v1/users/'.$customer->eId, $headers, $data);
+        }
+        return $response->body;
+    }
+    private function getCustomer($phone)
+    {
+        $token =str_replace("\"", "", $this->token);
+        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
+        $response = Api::get('https://api.lep.vn/v1/users?limit=20&skip=0&keyword='.$phone, $headers);
+        return $response->body;
+
+    }
 }
