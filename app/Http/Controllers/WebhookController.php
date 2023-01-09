@@ -3,22 +3,21 @@ namespace App\Http\Controllers;
 
 use App\Center;
 use App\Customer;
-use App\ErpToken;
 use App\Log;
 use App\Product;
+use App\Services\ERPService;
+use App\Services\SpeedService;
 use App\Webhook;
-use Doctrine\DBAL\Driver\Exception;
 use Illuminate\Http\Request;
 use Unirest\Request as Api;
 use Unirest\Request\Body;
 
 class WebhookController extends Controller
 {
-    private const USER = "admin";
-    private const PW = "123456a@";
-    private $token = "";
 
-    public function get(Request $request)
+    private $ErpService;
+    private $SpeedService;
+    public function get()
     {
         return response("true", 200);
 
@@ -27,10 +26,10 @@ class WebhookController extends Controller
 
     public function create(Request $request)
     {
+        $this->ErpService=ERPService::getInstance();
+        $this->SpeedService=SpeedService::getInstance();
         $nhanh = $request->only(["event", "webhooksVerifyToken", "data"]);
         if ($nhanh["webhooksVerifyToken"] != "Thangui0011@@1996") return response('error', 404);
-        $oldToken = ErpToken::latest()->first();
-        $this->token = $oldToken->token;
         if ($nhanh["event"] == "productAdd") {
             return $this->procedureProduct($nhanh);
         }
@@ -46,22 +45,22 @@ class WebhookController extends Controller
         return $this->procedureInventory($nhanh);
     }
     private function procedurePoint(){
-        $res = $this->getCustomersPoint();
+        $res = $this->SpeedService->getCustomersPoint();
 
             foreach ($res->data->customers as $customer) {
                 $CheckCustomer = Customer::where("phone",preg_replace('/\s+/S', " ", $customer->mobile))->first();
                 if($CheckCustomer){
                     if($CheckCustomer->coin == (int)$customer->points) continue;
-                    $this->updatePoint($CheckCustomer);
+                    $this->ErpService->updatePoint($CheckCustomer);
                     $CheckCustomer->update(["coin"=>(int)$customer->points]);
                 }else{
-                    // thêm mới khách hàng
+                    // add customer
                     $newC = new Customer();
                     $newC->phone = preg_replace('/\s+/S', " ", str_replace("\"","",$customer->mobile));
                     $newC->name = preg_replace('/\s+/S', " ", str_replace("\"","",$customer->name));
                     $newC->coin = (int)$customer->points;
 
-                    $getCustomer = $this->getCustomer($newC->phone);
+                    $getCustomer = $this->ErpService->getCustomer($newC->phone);
                     if (property_exists($getCustomer, 'data')){
                         if(count($getCustomer->data)>0){
                             $newC->eId=$getCustomer->data[0]->id;
@@ -69,7 +68,7 @@ class WebhookController extends Controller
                             continue;
                         }
                     }
-                    $res = $this->updatePoint($newC);
+                    $res = $this->ErpService->updatePoint($newC);
                     if (!property_exists($res, 'data')) {
                         Log::create(["content"=> "create customer false","description"=>$newC->phone."-".$res]);
                         continue;
@@ -81,6 +80,8 @@ class WebhookController extends Controller
             }
         return response('true', 200);
     }
+
+
     private function procedureProduct($nhanh){
 
         if($nhanh["data"]["parentId"]!= null)
@@ -111,7 +112,7 @@ class WebhookController extends Controller
                 CURLOPT_CUSTOMREQUEST => 'POST',
                 CURLOPT_POSTFIELDS => array('file'=> curl_file_create($nhanh["data"]["image"],'image/jpeg',$info['basename'])),
                 CURLOPT_HTTPHEADER => array(
-                    'Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDk0MjkyLCJwaG9uZSI6ImFkbWluIiwiZW1haWwiOm51bGwsIm5hbWUiOiJBZG1pbiIsImF2YXRhciI6bnVsbCwic2VydmljZSI6InN0YWZmIiwiZXhwIjoxNjY5MDUwODk0LCJpYXQiOjE2NjgxODY4OTQsImF1ZCI6IndlYiIsImlzcyI6ImF1dGguYjJjLnZuL3VzZXIvd2ViIn0.Z-VqfS1MeLtb3fkFzSQOitWNTb-GePicQoF6qF4r0Hsp11Yu_OeuU7EGPZF1RFxMTjuG7CySSu07EvDTqj7BDsoznrE-Lb6G_PqnS1RZM5CNLSK2vqoYN7_5o5vlyEJ4EHqhbNGd8WALI6t4_XBptwG7oU_oTv48kbeY2f21wea3DIkcHg2mqe25TJr_U0bB3XPuPd99nXAY6xFDrk-99hset1rf2Fju2E3U41TMYXsD2xwgbNlBbtVB0YJXTKqhSQWrGhCh-weSfl0ACO-hAVeoFEFkwdKY_ny1KcPIFxv5c_zCkl0qGYCk39emoexsWERdKoaTGPRcss0Sy6bWEQ'
+                    'Authorization: Bearer '.$this->ErpService->getToken()
                 ),
             ));
 
@@ -123,10 +124,10 @@ class WebhookController extends Controller
         }
 
 
-        $res = $this->getSubProducts($nhanh["data"]["productId"]);
+        $res = $this->SpeedService->getSubProducts($nhanh["data"]["productId"]);
         if (!property_exists($res, 'data')) {
             $product->products=[];
-            $resProduct = $this->createProduct($product);
+            $resProduct = $this->ErpService->createProduct($product);
             if (!property_exists($resProduct, 'data')) return response("true", 200);
             $update = Product::find($product->id);
             $update->pId=$resProduct->data->id;
@@ -159,23 +160,23 @@ class WebhookController extends Controller
             $index++;
         }
         $product->products = $subProducts;
-        $resProduct = $this->createProduct($product);
+        $resProduct = $this->ErpService->createProduct($product);
 
         if (!property_exists($resProduct, 'data')) {
-            $tok = $this->login();
-            if($tok=="") return response("true", 200);
+             $this->ErpService->login();
+            if($this->ErpService->t) return response("true", 200);
 
-            $resProduct = $this->createProduct($product);
+            $resProduct = $this->ErpService->createProduct($product);
             if (!property_exists($resProduct, 'data')) return response("true", 200);
         }
         $update = Product::find($product->id);
         $update->pId=$resProduct->data->id;
         $update->save();
-        $resProduct = $this->getListSubOfProduct($update->pId);
+        $resProduct = $this->ErpService->getListSubOfProduct($update->pId);
         if (!property_exists($resProduct, 'data')) {
-            $tok = $this->login();
+            $tok = $this->ErpService->login();
             if($tok=="") return response("true", 200);
-            $resProduct = $this->getListSubOfProduct($update->pId);
+            $resProduct = $this->ErpService->getListSubOfProduct($update->pId);
             if (!property_exists($resProduct, 'data')) return response("true", 200);
         }
         foreach ($resProduct->data->products as $value) {
@@ -188,31 +189,43 @@ class WebhookController extends Controller
         }
         return response("true", 200);
     }
+
+
+
+
     private function procedureInventory($nhanh){
         $stocks = Center::where('nhanhId', '>', 0)->where('active',1)->get();
         $stockNhanhs = Center::where('nhanhId', '>', 0)->where('active',1)->get()->pluck('nhanhId')->toArray();
         foreach ($nhanh["data"] as $item) {
-            $product = Product::where('code', $item['code'])->where('parentId', '>', 0)->first();
-            if ($product == null) {
-                $product = Product::where('code', str_replace("-", "", $item['code']))->where('parentId', '>', 0)->first();
-            }
-            if ($product == null) {
-                Log::create(['content' => $item['code'], 'description' => 'product not have']);
-                continue;
-            }
-            $erpProduct = $this->getProduct($this->token, $product->parentId, false);
-            foreach ($erpProduct as $i) {
-                if (str_replace("-", "", $i->sku )==str_replace("-", "", $product->code) ) {
-                    foreach ($item["depots"] as $key => $value) {
-                        if (in_array((int)$key, $stockNhanhs)) {
-                            $stockMap = $this->stockFilterNhanh($stocks, (int)$key);
-                            $this->checkQuantity($i,$value,$stockMap,$product->parentId);
-                        }
-                    }
+            $this->procedureInventoryErp($item,$stockNhanhs,$stocks);
+            foreach ($item["depots"] as $key => $value) {
+                if ((int)$key==133563) {
+
                 }
             }
         }
         return response('true', 200);
+    }
+    private function procedureInventoryErp($item,$stockNhanhs,$stocks){
+        $product = Product::where('code', $item['code'])->where('parentId', '>', 0)->first();
+        if ($product == null) {
+            $product = Product::where('code', str_replace("-", "", $item['code']))->where('parentId', '>', 0)->first();
+        }
+        if ($product == null) {
+            Log::create(['content' => $item['code'], 'description' => 'product not have']);
+            return;
+        }
+        $erpProduct = $this->ErpService->getProduct($product->parentId, false);
+        foreach ($erpProduct as $i) {
+            if (str_replace("-", "", $i->sku )==str_replace("-", "", $product->code) ) {
+                foreach ($item["depots"] as $key => $value) {
+                    if (in_array((int)$key, $stockNhanhs)) {
+                        $stockMap = $this->stockFilterNhanh($stocks, (int)$key);
+                        $this->checkQuantity($i,$value,$stockMap,$product->parentId);
+                    }
+                }
+            }
+        }
     }
 
     private function checkQuantity($inventoryErp, $inventoryNhanh, $stockMap,$id)
@@ -231,7 +244,7 @@ class WebhookController extends Controller
                 'total_quantity' => $stockErp->total_quantity,
                 'total_actual' => $inventoryNhanh['available'],
                 'total_adjustment' => $inventoryNhanh['available']-$stockErp->total_quantity);
-            $this->upDateInventory($stockMap,$product);
+            $this->ErpService->upDateInventory($stockMap,$product);
             $check=true;
             break;
         }
@@ -242,96 +255,14 @@ class WebhookController extends Controller
             'total_quantity' => 0,
             'total_actual' => $inventoryNhanh['available'],
             'total_adjustment' => $inventoryNhanh['available']);
-        $this->upDateInventory($stockMap,$product);
+        $this->ErpService->upDateInventory($stockMap,$product);
     }
 
-    private function getProduct(string $token, int $id, bool $check = true)
-    {
-        $headers = array('Authorization' => 'Bearer ' . $token);
-
-        $response = Api::get('https://api.lep.vn/v1/products/' . $id, $headers);
-        $res = $response->body;
-        if (property_exists($res, 'data')) {
-            return $response->body->data->products;
-        }
-        Log::create(['content' => 'error', 'description' => 'get product ' . $id]);
-        if ($check) {
-            $token = $this->login();
-            if ($token == '') return null;
-            return $this->getProduct($token, $id, false);
-        }
-        return null;
-    }
-
-    private function upDateInventory($stock, $product)
-    {
-        $token =str_replace("\"", "", $this->token);
-        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
-        $products = array($product);
-        $data = array('note' => 'Phiếu kiểm hàng tự động', 'store' => $stock, 'status' => 'completed', 'products' => $products);
-
-        $body = Body::json($data);
-        $response = Api::post('https://api.lep.vn/v1/stock-takes', $headers, $body);
-        $res = $response->body;
-
-    }
-    private function createProduct($data)
-    {
-        $token =str_replace("\"", "", $this->token);
-        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
-        $body = Body::json($data);
-        $response = Api::post('https://api.lep.vn/v1/products', $headers, $body);
-        return $response->body;
-
-    }
-    private function getListSubOfProduct($id)
-    {
-        $token =str_replace("\"", "", $this->token);
-        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
-        $response = Api::get('https://api.lep.vn/v1/products/'.$id, $headers);
-        return $response->body;
+    private function checkPancakeStore(){
 
     }
 
-    private function getCustomersPoint()
-    {
-        $headers = array('Content-Type' => 'application/x-www-form-urlencoded');
-        $data = $this->getBodyGetProduct("{\"page\":1,\"fromLastBoughtDate\":\"" . date("Y-m-d") . "\",\"toLastBoughtDate\":\"" . date("Y-m-d") . "\"}");
-        $response = Api::post('https://open.nhanh.vn/api/customer/search', $headers, $data);
-        return $response->body;
 
-    }
-    private function getSubProducts($id)
-    {
-        $headers = array('Content-Type' => 'application/x-www-form-urlencoded');
-        $data = $this->getBodyGetProduct("{\"page\":1,\"parentId\":".$id."}");
-        $response = Api::post('https://open.nhanh.vn/api/product/search', $headers, $data);
-        return $response->body;
-
-    }
-
-    private function login(): string
-    {
-        try {
-            $headers = array('Content-Type' => 'application/json');
-            $data = array('username' => self::USER, 'password' => self::PW, 'service' => 'staff');
-
-            $body = Body::json($data);
-            $response = Api::post('https://api.lep.vn/v1/auth/login-password?group=web', $headers, $body);
-            $res = $response->body;
-            if (property_exists($res, 'data')) {
-                $token = json_encode(str_replace("\"", "", $response->body->data->token->access_token));
-                ErpToken::create(['token' => $token]);
-                $this->token = $token;
-                return $token;
-            }
-            Log::create(['content' => 'error', 'description' => 'login false']);
-            return '';
-
-        } catch (Exception $e) {
-            return '';
-        }
-    }
 
     private function stockFilterNhanh($lts, int $id)
     {
@@ -343,47 +274,4 @@ class WebhookController extends Controller
         return null;
     }
 
-    private function getBodyGetProduct($data) {
-        return "appId=73008&version=2.0&businessId=16294&accessToken=MbkK0iZX0IwRewzFLAdJ0w1X9RCEwqmFUJsIpl2kZQ1ytElyOjTmHrjBqHwNKo2ysghCOhbBhzPQ65AVT5GBzFqgBADC2WekYD1jsgQoEtmq9IyrvbVRm8TME0uaDWsV5h1eYq6Jx5Zp87lrHgcZrJtRTsXjAo8uteUbkMgdWPWAt2IMTadyet8H2JTi"
-            ."&data=".$data;
-    }
-
-    private function updatePoint($customer)
-    {
-        $token =str_replace("\"", "", $this->token);
-        $headers = array('Authorization' => 'Bearer ' .$token,'Content-Type' => 'application/json');
-        $data = "{\n" .
-            "  \"type\": \"individual\",\n" .
-            "  \"name\": \"".$customer->name."\",\n" .
-            "  \"phone\": \"".$customer->phone."\",\n" .
-            "  \"group\": {\n" .
-            "    \"id\": 6,\n" .
-            "    \"name\": \"MEMBER\"\n" .
-            "  },\n" .
-            "  \"stores\": [\n" .
-            "\n" .
-            "  ],\n" .
-            "  \"gender\": \"female\",\n" .
-            "  \"country\": \"vn\",\n" .
-            "  \"permissions\": [\n" .
-            "    \"user\"\n" .
-            "  ],\n" .
-            "  \"total_point\": ".$customer->coin.",\n" .
-            "  \"status\": \"active\"\n" .
-            "}";
-        if(empty($customer->eId)){
-            $response = Api::post('https://api.lep.vn/v1/users', $headers, $data);
-        }else{
-            $response = Api::put('https://api.lep.vn/v1/users/'.$customer->eId, $headers, $data);
-        }
-        return $response->body;
-    }
-    private function getCustomer($phone)
-    {
-        $token =str_replace("\"", "", $this->token);
-        $headers = array('Authorization' => 'Bearer ' .$token, 'Content-Type' => 'application/json');
-        $response = Api::get('https://api.lep.vn/v1/users?limit=20&skip=0&keyword='.$phone, $headers);
-        return $response->body;
-
-    }
 }
